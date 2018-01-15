@@ -9,6 +9,7 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 
@@ -66,11 +67,19 @@ func Excute() error {
 		r = bytes.NewReader(bs)
 	} else {
 		imgFile := viper.GetString("input")
-		fd, err := os.Open(imgFile)
-		if err != nil {
-			return err
+		if strings.HasPrefix(imgFile, "http://") || strings.HasPrefix(imgFile, "https://") {
+			resp, err := http.Get(imgFile)
+			if err != nil {
+				return err
+			}
+			r = resp.Body
+		} else {
+			fd, err := os.Open(imgFile)
+			if err != nil {
+				return err
+			}
+			r = fd
 		}
-		r = fd
 	}
 
 	var err error
@@ -92,7 +101,7 @@ func Excute() error {
 	}
 
 	if viper.GetBool("gray") {
-		img = grayscale.Convert(img, grayscale.ToGrayLuminance)
+		img = grayscale.Convert(img, grayscale.ToGrayLightness)
 	}
 
 	return ICatRect(img, viper.GetInt("height"), viper.GetInt("width"), os.Stdout)
