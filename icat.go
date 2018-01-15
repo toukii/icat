@@ -1,8 +1,13 @@
 package icat
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
 
 	imgcat "github.com/martinlindhe/imgcat/lib"
@@ -10,6 +15,33 @@ import (
 )
 
 func ICat(img image.Image, wr io.Writer) error {
+	return imgcat.CatImage(img, wr)
+}
+
+// data:image/gif;base64,R0lGODlhBAABAIABAMLBwfLx8SH5BAEAAAEALAAAAAAEAAEAAAICRF4AOw==
+func ICatBase64(imgBase64 string, ext string, wr io.Writer) error {
+	bs, err := base64.StdEncoding.DecodeString(imgBase64)
+	if err != nil {
+		return err
+	}
+	var img image.Image
+	r := bytes.NewReader(bs)
+	if ext == "png" {
+		img, err = png.Decode(r)
+		if err != nil {
+			return err
+		}
+	} else if ext == "gif" {
+		img, err = gif.Decode(r)
+		if err != nil {
+			return err
+		}
+	} else {
+		img, err = jpeg.Decode(r)
+		if err != nil {
+			return err
+		}
+	}
 	return imgcat.CatImage(img, wr)
 }
 
