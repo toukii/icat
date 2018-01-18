@@ -1,8 +1,6 @@
 package icat
 
 import (
-	"bytes"
-	"encoding/base64"
 	"fmt"
 	"image"
 	"image/gif"
@@ -56,33 +54,33 @@ func init() {
 }
 
 func Excute() error {
-	var r io.Reader
-	var img image.Image
+
+	// fd1, _ := os.OpenFile("out.txt", os.O_CREATE|os.O_RDWR, 0644)
+	// defer fd1.Close()
 
 	if base64Cnt := viper.GetString("base64"); base64Cnt != "" {
-		bs, err := base64.StdEncoding.DecodeString(base64Cnt)
+		return ICatBase64(base64Cnt, os.Stdout)
+		// return ICatBase64(base64Cnt,  fd1)
+	}
+
+	imgFile := viper.GetString("input")
+	if strings.HasPrefix(imgFile, "http://") || strings.HasPrefix(imgFile, "https://") {
+		resp, err := http.Get(imgFile)
 		if err != nil {
 			return err
 		}
-		r = bytes.NewReader(bs)
-	} else {
-		imgFile := viper.GetString("input")
-		if strings.HasPrefix(imgFile, "http://") || strings.HasPrefix(imgFile, "https://") {
-			resp, err := http.Get(imgFile)
-			if err != nil {
-				return err
-			}
-			r = resp.Body
-		} else {
-			fd, err := os.Open(imgFile)
-			if err != nil {
-				return err
-			}
-			r = fd
-		}
+		return ICatRead(resp.Body, os.Stdout)
+		// return ICatRead(resp.Body, fd1)
 	}
 
-	var err error
+	var r io.Reader
+	var img image.Image
+	fd, err := os.Open(imgFile)
+	if err != nil {
+		return err
+	}
+	r = fd
+
 	if viper.GetString("ext") == "png" {
 		img, err = png.Decode(r)
 		if err != nil {
@@ -102,7 +100,9 @@ func Excute() error {
 
 	if viper.GetBool("gray") {
 		img = grayscale.Convert(img, grayscale.ToGrayLightness)
+
 	}
 
 	return ICatRect(img, viper.GetInt("height"), viper.GetInt("width"), os.Stdout)
+	// return ICatRect(img, viper.GetInt("height"), viper.GetInt("width"), fd1)
 }

@@ -1,53 +1,47 @@
 package icat
 
 import (
-	"bytes"
-	"encoding/base64"
 	"fmt"
 	"image"
-	"image/gif"
-	"image/jpeg"
 	"image/png"
 	"io"
+	"net/http"
+	"os"
 
-	imgcat "github.com/martinlindhe/imgcat/lib"
 	"github.com/oliamb/cutter"
 )
 
 func ICat(img image.Image, wr io.Writer) error {
-	return imgcat.CatImage(img, wr)
-}
-
-// data:image/gif;base64,R0lGODlhBAABAIABAMLBwfLx8SH5BAEAAAEALAAAAAAEAAEAAAICRF4AOw==
-func ICatBase64(imgBase64 string, ext string, wr io.Writer) error {
-	bs, err := base64.StdEncoding.DecodeString(imgBase64)
+	if typ, ok := wr.(*EncodeWr); ok {
+		flushErr := typ.FlushStdout()
+		encodErr := png.Encode(typ, img)
+		if flushErr != nil || encodErr != nil {
+			return fmt.Errorf("err: %+v,%+v", flushErr, encodErr)
+		}
+		return nil
+	}
+	w := NewEncodeWr(wr, nil)
+	err := png.Encode(w, img)
 	if err != nil {
 		return err
 	}
-	var img image.Image
-	r := bytes.NewReader(bs)
-	if ext == "png" {
-		img, err = png.Decode(r)
-		if err != nil {
-			return err
-		}
-	} else if ext == "gif" {
-		img, err = gif.Decode(r)
-		if err != nil {
-			return err
-		}
-	} else {
-		img, err = jpeg.Decode(r)
-		if err != nil {
-			return err
-		}
+	if _, ok := wr.(*os.File); ok {
+		return w.FlushStdout()
 	}
-	return imgcat.CatImage(img, wr)
+	return w.Flush()
+}
+
+func ICatBase64(imgBase64 string, wr io.Writer) error {
+	if typ, ok := wr.(*EncodeWr); ok {
+		return typ.FlushBase64Stdout(imgBase64)
+	}
+	ew := NewEncodeWr(wr, nil)
+	return ew.FlushBase64Stdout(imgBase64)
 }
 
 func ICatRect(img image.Image, height, width int, wr io.Writer) error {
 	bud := img.Bounds()
-	fmt.Printf("img y:%d, x:%d\n", bud.Dy(), bud.Dx())
+	// fmt.Printf("img y:%d, x:%d\n", bud.Dy(), bud.Dx())
 	if height <= 0 {
 		height = bud.Dy()
 	}
@@ -66,6 +60,30 @@ func ICatRect(img image.Image, height, width int, wr io.Writer) error {
 	}
 
 	return ICat(cImg, wr)
+}
+
+func ICatRead(r io.Reader, w io.Writer) error {
+	if typ, ok := w.(*EncodeWr); ok {
+		_, err := io.Copy(typ, r)
+		if err != nil {
+			return err
+		}
+		return typ.FlushStdout()
+	}
+	ew := NewEncodeWr(w, nil)
+	_, err := io.Copy(ew, r)
+	if err != nil {
+		return err
+	}
+	return ew.FlushStdout()
+}
+
+func ICatHttp(uri string, w io.Writer) error {
+	resp, err := http.Get(uri)
+	if err != nil {
+		return err
+	}
+	return ICatRead(resp.Body, os.Stdout)
 }
 
 // inFile := "file.jpg"
