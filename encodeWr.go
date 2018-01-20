@@ -40,7 +40,12 @@ func (p *EncodeWr) FlushStdout() error {
 	return err
 }
 
+func (p *EncodeWr) close() error {
+	return p.enc.Close()
+}
+
 func (p *EncodeWr) FlushBase64Stdout(imgBase64 string) error {
+	defer p.close()
 	fmt.Fprint(p.W, "\033]1337;File=;inline=1:")
 	defer fmt.Fprintln(p.W, "\a")
 	_, err := fmt.Fprintln(p.W, imgBase64)
@@ -48,6 +53,7 @@ func (p *EncodeWr) FlushBase64Stdout(imgBase64 string) error {
 }
 
 func (p *EncodeWr) Flush() error {
+	defer p.close()
 	_, err := io.Copy(p.W, p.buf)
 	p.buf.Reset()
 	return err

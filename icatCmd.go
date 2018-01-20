@@ -14,6 +14,7 @@ import (
 	"github.com/harrydb/go/img/grayscale"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/toukii/goutils"
 )
 
 var Command = &cobra.Command{
@@ -69,6 +70,9 @@ func Excute() error {
 		if err != nil {
 			return err
 		}
+		if viper.GetString("ext") == "svg" {
+			return ReadDisplay(resp.Body)
+		}
 		return ICatRead(resp.Body, os.Stdout)
 		// return ICatRead(resp.Body, fd1)
 	}
@@ -96,6 +100,8 @@ func Excute() error {
 		if err != nil {
 			return err
 		}
+	} else if viper.GetString("ext") == "svg" {
+		return Display(goutils.ReadFile(viper.GetString("input")))
 	}
 
 	if viper.GetBool("gray") {
