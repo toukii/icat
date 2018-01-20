@@ -11,10 +11,45 @@ import (
 	"github.com/oliamb/cutter"
 )
 
+func CatRect(img image.Image, height, width int, wr io.Writer) error {
+	bud := img.Bounds()
+	// fmt.Printf("img y:%d, x:%d\n", bud.Dy(), bud.Dx())
+	if height <= 0 {
+		height = bud.Dy()
+	}
+	if width <= 0 {
+		width = bud.Dx()
+	}
+	cImg, err := cutter.Crop(img, cutter.Config{
+		Height:  height,            // height in pixel or Y ratio(see Ratio Option below)
+		Width:   width,             // width in pixel or X ratio
+		Mode:    cutter.TopLeft,    // Accepted Mode: TopLeft, Centered
+		Anchor:  image.Point{0, 0}, // Position of the top left point
+		Options: 0,                 // Accepted Option: Ratio
+	})
+	if err != nil {
+		return err
+	}
+
+	return Cat(cImg, wr)
+}
+
+func Cat(img image.Image, wr io.Writer) error {
+	if typ, ok := wr.(*EncodeWr); ok {
+		encodErr := png.Encode(typ, img)
+		flushErr := typ.FlushStdout()
+		if flushErr != nil || encodErr != nil {
+			return fmt.Errorf("err: %+v,%+v", flushErr, encodErr)
+		}
+		return nil
+	}
+	return png.Encode(wr, img)
+}
+
 func ICat(img image.Image, wr io.Writer) error {
 	if typ, ok := wr.(*EncodeWr); ok {
-		flushErr := typ.FlushStdout()
 		encodErr := png.Encode(typ, img)
+		flushErr := typ.FlushStdout()
 		if flushErr != nil || encodErr != nil {
 			return fmt.Errorf("err: %+v,%+v", flushErr, encodErr)
 		}

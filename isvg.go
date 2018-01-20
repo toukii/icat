@@ -1,6 +1,8 @@
 package icat
 
 import (
+	"image"
+	"image/png"
 	"io"
 	"io/ioutil"
 	"os"
@@ -9,7 +11,11 @@ import (
 	"github.com/toukii/bytes"
 )
 
-func Decode(bs []byte) ([]byte, error) {
+func DecodeSVG(r io.Reader) (image.Image, error) {
+	bs, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 	cmd := exec.Command("rsvg-convert")
 
 	w := bytes.NewWriter(make([]byte, 0, 1024))
@@ -19,10 +25,10 @@ func Decode(bs []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	return w.Bytes(), nil
+	return png.Decode(bytes.NewReader(w.Bytes()))
 }
 
-func Display(bs []byte) error {
+func DisplaySVG(bs []byte) error {
 	cmd := exec.Command("rsvg-convert")
 
 	w := NewEncodeWr(os.Stdout, nil)
@@ -32,10 +38,10 @@ func Display(bs []byte) error {
 	return cmd.Run()
 }
 
-func ReadDisplay(r io.Reader) error {
+func ReadDisplaySVG(r io.Reader) error {
 	bs, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
 	}
-	return Display(bs)
+	return DisplaySVG(bs)
 }

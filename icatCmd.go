@@ -14,7 +14,7 @@ import (
 	"github.com/harrydb/go/img/grayscale"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/toukii/goutils"
+	// "github.com/toukii/goutils"
 )
 
 var Command = &cobra.Command{
@@ -45,6 +45,7 @@ func init() {
 	Command.PersistentFlags().IntP("width", "w", 0, "image width")
 	Command.PersistentFlags().StringP("base64", "B", "", "base64")
 	Command.PersistentFlags().StringP("ext", "x", "png", "ext:png|jpg/jpeg|gif")
+	Command.PersistentFlags().StringP("output", "o", "stdout", "output:stdout|filename")
 	Command.PersistentFlags().BoolP("gray", "g", false, "gray image")
 
 	viper.BindPFlag("height", Command.PersistentFlags().Lookup("height"))
@@ -52,17 +53,26 @@ func init() {
 	viper.BindPFlag("base64", Command.PersistentFlags().Lookup("base64"))
 	viper.BindPFlag("ext", Command.PersistentFlags().Lookup("ext"))
 	viper.BindPFlag("gray", Command.PersistentFlags().Lookup("gray"))
+	viper.BindPFlag("output", Command.PersistentFlags().Lookup("output"))
 }
 
 func Excute() error {
-
-	// fd1, _ := os.OpenFile("out.txt", os.O_CREATE|os.O_RDWR, 0644)
-	// defer fd1.Close()
+	var w io.Writer
+	output := viper.GetString("output")
+	if output == "stdout" {
+		w = NewEncodeWr(os.Stdout, nil)
+	} else {
+		fd, _ := os.OpenFile(output, os.O_CREATE|os.O_RDWR, 0644)
+		defer fd.Close()
+		w = fd
+	}
 
 	if base64Cnt := viper.GetString("base64"); base64Cnt != "" {
-		return ICatBase64(base64Cnt, os.Stdout)
-		// return ICatBase64(base64Cnt,  fd1)
+		return ICatBase64(base64Cnt, w)
 	}
+
+	var r io.Reader
+	var img image.Image
 
 	imgFile := viper.GetString("input")
 	if strings.HasPrefix(imgFile, "http://") || strings.HasPrefix(imgFile, "https://") {
@@ -70,15 +80,9 @@ func Excute() error {
 		if err != nil {
 			return err
 		}
-		if viper.GetString("ext") == "svg" {
-			return ReadDisplay(resp.Body)
-		}
-		return ICatRead(resp.Body, os.Stdout)
-		// return ICatRead(resp.Body, fd1)
+		r = resp.Body
 	}
 
-	var r io.Reader
-	var img image.Image
 	fd, err := os.Open(imgFile)
 	if err != nil {
 		return err
@@ -101,7 +105,10 @@ func Excute() error {
 			return err
 		}
 	} else if viper.GetString("ext") == "svg" {
-		return Display(goutils.ReadFile(viper.GetString("input")))
+		img, err = DecodeSVG(r)
+		if err != nil {
+			return err
+		}
 	}
 
 	if viper.GetBool("gray") {
@@ -109,6 +116,5 @@ func Excute() error {
 
 	}
 
-	return ICatRect(img, viper.GetInt("height"), viper.GetInt("width"), os.Stdout)
-	// return ICatRect(img, viper.GetInt("height"), viper.GetInt("width"), fd1)
+	return CatRect(img, viper.GetInt("height"), viper.GetInt("width"), w)
 }

@@ -5,12 +5,12 @@ svg to image(png)
 ## usage
 
 
- - __Decode__
+ - __DecodeSVG__
  
 ```
 bs := goutils.ReadFile("github.svg")
 
-dbs, err := Decode(bs)
+dbs, err := DecodeSVG(bs)
 if err != nil {
 	t.Errorf("%s", err)
 }
@@ -19,10 +19,10 @@ if err := icat.ICatRead(bytes.NewReader(dbs), os.Stdout); err != nil {
 }
 ```
 
- - __Display__
+ - __DisplaySVG__
 
 ```
-if err := Display(bs); err != nil {
+if err := DisplaySVG(bs); err != nil {
 	t.Errorf("%s", err)
 }
 ```

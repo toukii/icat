@@ -9,18 +9,16 @@ import (
 )
 
 func TestIsvg(t *testing.T) {
-	bs := goutils.ReadFile("github.svg")
-	dbs, err := Decode(bs)
+	bs := goutils.ReadFile("test_images/github.svg")
+	img, err := DecodeSVG(bytes.NewReader(bs))
 	if err != nil {
 		t.Errorf("%s", err)
 	}
-	if err := ICatRead(bytes.NewReader(dbs), os.Stdout); err != nil {
-		t.Errorf("%s", err)
-	}
+	ICat(img, os.Stdout)
 }
 
 func TestDisplay(t *testing.T) {
-	if err := Display(goutils.ReadFile("github.svg")); err != nil {
+	if err := DisplaySVG(goutils.ReadFile("test_images/github.svg")); err != nil {
 		t.Errorf("%s", err)
 	}
 }
