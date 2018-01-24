@@ -27,7 +27,6 @@ func NewEncodeWr(w io.Writer, buff []byte) *EncodeWr {
 }
 
 func (p *EncodeWr) Write(buf []byte) (n int, err error) {
-	fmt.Printf("%+v,%s\n", buf, buf)
 	return p.buf.Write(buf)
 }
 

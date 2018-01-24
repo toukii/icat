@@ -79,6 +79,7 @@ func Excute() error {
 
 	var r io.Reader
 	var img image.Image
+	var err error
 
 	imgFile := viper.GetString("input")
 	if strings.HasPrefix(imgFile, "http://") || strings.HasPrefix(imgFile, "https://") {
@@ -87,13 +88,13 @@ func Excute() error {
 			return err
 		}
 		r = resp.Body
+	} else {
+		fd, err := os.Open(imgFile)
+		if err != nil {
+			return err
+		}
+		r = fd
 	}
-
-	fd, err := os.Open(imgFile)
-	if err != nil {
-		return err
-	}
-	r = fd
 
 	if viper.GetString("ext") == "png" {
 		img, err = png.Decode(r)
