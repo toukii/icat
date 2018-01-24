@@ -1,6 +1,7 @@
 package icat
 
 import (
+	// "fmt"
 	"image"
 	"image/png"
 	"io"
@@ -30,6 +31,8 @@ func DecodeSVG(r io.Reader) (image.Image, error) {
 
 func DisplaySVG(bs []byte) error {
 	cmd := exec.Command("rsvg-convert")
+
+	// fmt.Printf("%s\n", bs)
 
 	w := NewEncodeWr(os.Stdout, nil)
 	defer w.FlushStdout()

@@ -43,6 +43,16 @@ func TestICatHttp(t *testing.T) {
 	ICatHttp("http://bramus.github.io/ws2-sws-course-materials/assets/xx/github.png", os.Stdout)
 }
 
+func TestMultiEncodeWr(t *testing.T) {
+	out, _ := os.OpenFile("out.jpg", os.O_CREATE|os.O_WRONLY, 0644)
+	defer out.Close()
+	ws := NewMultiEncodeWr(nil, os.Stdout, out)
+	jpeg.Encode(ws, img, &jpeg.Options{100})
+	ws.FlushStdout(0)
+	ws.Flush(1)
+	ws.Flush(0)
+}
+
 func TestEncodeWr(t *testing.T) {
 	// fd, _ := os.OpenFile("out.txt", os.O_CREATE|os.O_RDWR, 0644)
 	// ew := NewEncodeWr(fd, nil)

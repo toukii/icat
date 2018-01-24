@@ -3,6 +3,7 @@ package icat
 import (
 	"fmt"
 	"image"
+	// "image/jpeg"
 	"image/png"
 	"io"
 	"net/http"
@@ -11,7 +12,17 @@ import (
 	"github.com/oliamb/cutter"
 )
 
-func CatRect(img image.Image, height, width int, wr io.Writer) error {
+func ICatImage(img image.Image) image.Image {
+	w := NewEncodeWr(os.Stdout, nil)
+	err := png.Encode(w, img)
+	if err != nil {
+		panic(err)
+	}
+	w.FlushStdout()
+	return nil
+}
+
+func CatRect(img image.Image, height, width, top, left int, wr io.Writer) error {
 	bud := img.Bounds()
 	// fmt.Printf("img y:%d, x:%d\n", bud.Dy(), bud.Dx())
 	if height <= 0 {
@@ -21,11 +32,11 @@ func CatRect(img image.Image, height, width int, wr io.Writer) error {
 		width = bud.Dx()
 	}
 	cImg, err := cutter.Crop(img, cutter.Config{
-		Height:  height,            // height in pixel or Y ratio(see Ratio Option below)
-		Width:   width,             // width in pixel or X ratio
-		Mode:    cutter.TopLeft,    // Accepted Mode: TopLeft, Centered
-		Anchor:  image.Point{0, 0}, // Position of the top left point
-		Options: 0,                 // Accepted Option: Ratio
+		Height:  height,                 // height in pixel or Y ratio(see Ratio Option below)
+		Width:   width,                  // width in pixel or X ratio
+		Mode:    cutter.TopLeft,         // Accepted Mode: TopLeft, Centered
+		Anchor:  image.Point{left, top}, // Position of the top left point
+		Options: 0,                      // Accepted Option: Ratio
 	})
 	if err != nil {
 		return err
@@ -36,6 +47,7 @@ func CatRect(img image.Image, height, width int, wr io.Writer) error {
 
 func Cat(img image.Image, wr io.Writer) error {
 	if typ, ok := wr.(*EncodeWr); ok {
+		// encodErr := jpeg.Encode(typ, img, &jpeg.Options{100})
 		encodErr := png.Encode(typ, img)
 		flushErr := typ.FlushStdout()
 		if flushErr != nil || encodErr != nil {

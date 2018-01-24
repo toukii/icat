@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
+	"os"
+	"reflect"
 )
 
 type EncodeWr struct {
@@ -25,6 +27,7 @@ func NewEncodeWr(w io.Writer, buff []byte) *EncodeWr {
 }
 
 func (p *EncodeWr) Write(buf []byte) (n int, err error) {
+	fmt.Printf("%+v,%s\n", buf, buf)
 	return p.buf.Write(buf)
 }
 
@@ -36,7 +39,7 @@ func (p *EncodeWr) FlushStdout() error {
 
 	fmt.Fprintln(p.W, "\a")
 
-	p.buf.Reset()
+	// p.buf.Reset()
 	return err
 }
 
@@ -57,4 +60,31 @@ func (p *EncodeWr) Flush() error {
 	_, err := io.Copy(p.W, p.buf)
 	p.buf.Reset()
 	return err
+}
+
+type EncodeStdout struct {
+	enc    io.WriteCloser
+	writed bool
+}
+
+var (
+	EOFB = []byte{174, 66, 96, 130}
+)
+
+func NewEncodeStdout() *EncodeStdout {
+	return &EncodeStdout{
+		enc: base64.NewEncoder(base64.StdEncoding, os.Stdout),
+	}
+}
+
+func (p *EncodeStdout) Write(buf []byte) (n int, err error) {
+	if !p.writed {
+		fmt.Fprint(os.Stdout, "\033]1337;File=;inline=1:")
+		p.writed = true
+	}
+	n, err = p.enc.Write(buf)
+	if n == 4 && reflect.DeepEqual(buf, EOFB) {
+		fmt.Fprintln(os.Stdout, "\a")
+	}
+	return n, err
 }
