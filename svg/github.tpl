@@ -3,32 +3,43 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="80px" height="80px" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">
-	 <!-- <defs> -->
+	 <defs>
     <style type="text/css"><![CDATA[
-       .MyRect {
-         stroke: blue;
-         fill: red;
-       }
-       .MyRect:hover {
-		  stroke: black;
-		  fill: blue;
-		}
-
 		#outerCircle {
 			stroke: black;
 			fill: {{.OuterC}};
 		}
-
-		#innerCircle {
+		#outerCircle:hover {
 			stroke: black;
-			fill: {{.InnerC}};
+			fill: {{.CatC}};
+		}
+
+		#catArround {
+			stroke: black;
+			fill: {{.CatAroundC}};
+		}
+		#catArround:hover {
+			stroke: black;
+			fill: {{.OuterC}};
+		}
+
+		#cat {
+			stroke: black;
+			fill: {{.CatC}};
+		}
+		#cat:hover {
+			stroke: black;
+			fill: {{.OuterC}};
 		}
     ]]></style>
-  <!-- </defs> -->
+  </defs>
 <g>
-	<circle id="#outerCircle" cx="256" cy="256" r="256"" /> 
-	<circle id="#innerCircle" cx="256" cy="256" r="206"" /> 
-	<path fill="#c9f600" d="M336.265,65.91C310.863,55.167,283.859,49.719,256,49.719c-27.859,0-54.863,5.448-80.265,16.191
+
+	<!-- <path id="cat" d="M0,0v512h512V0H0z M256,501.566C120.378,501.566,10.434,391.622,10.434,256S120.378,10.434,256,10.434
+		S501.566,120.378,501.566,256S391.622,501.566,256,501.566z"/> -->
+	<circle id="outerCircle" cx="256" cy="256" r="256" /> 
+	<circle id="cat" cx="256" cy="256" r="206" /> 
+	<path id="catArround" d="M336.265,65.91C310.863,55.167,283.859,49.719,256,49.719c-27.859,0-54.863,5.448-80.265,16.191
 		c-24.554,10.385-46.614,25.261-65.567,44.215s-33.828,41.014-44.215,65.567c-10.743,25.401-16.191,52.406-16.191,80.265
 		s5.448,54.863,16.19,80.264c10.385,24.555,25.262,46.614,44.215,65.568c18.954,18.953,41.014,33.828,65.567,44.215
 		c7.012,2.965,14.15,5.512,21.391,7.669v-37.521c0-19.504,6.555-33.734,19.665-42.686c-8.314-0.799-15.947-1.918-22.902-3.357
@@ -44,7 +55,5 @@
 		c6.42-1.997,12.755-4.313,18.993-6.951c24.555-10.385,46.614-25.262,65.568-44.215c18.953-18.953,33.828-41.014,44.215-65.567
 		c10.744-25.4,16.191-52.406,16.191-80.265s-5.448-54.863-16.19-80.265c-10.385-24.554-25.262-46.614-44.215-65.567
 		C382.879,91.172,360.82,76.297,336.265,65.91z"/>
-	<!-- <path class="MyRect" d="M0,0v512h512V0H0z M256,501.566C120.378,501.566,10.434,391.622,10.434,256S120.378,10.434,256,10.434
-		S501.566,120.378,501.566,256S391.622,501.566,256,501.566z"/> -->
 </g>
 </svg>

@@ -26,11 +26,19 @@ func (c *C) SetC(θ float64) {
 }
 
 func (c *C) Compute() {
-	c.R = uint8(255 * math.Sin(c.Θ/2))
-	c.G = uint8(255 * math.Sin(c.Θ/2+math.Pi/3))
-	c.B = uint8(255 * math.Sin(c.Θ/2+math.Pi*2/3))
+	c.R = uint8(math.Abs(255 * math.Sin(c.Θ/2)))
+	c.G = uint8(math.Abs(255 * math.Sin(c.Θ/2+math.Pi/3)))
+	c.B = uint8(math.Abs(255 * math.Sin(c.Θ/2+math.Pi*2/3)))
 }
 
 func (c *C) String() string {
 	return fmt.Sprintf("rgb(%d,%d,%d)", c.R, c.G, c.B)
+}
+
+func (c *C) Three() []string {
+	return []string{
+		fmt.Sprintf("rgb(%d,%d,%d)", c.R, c.G, c.B),
+		fmt.Sprintf("rgb(%d,%d,%d)", c.B, c.R, c.G),
+		fmt.Sprintf("rgb(%d,%d,%d)", c.G, c.B, c.R),
+	}
 }
