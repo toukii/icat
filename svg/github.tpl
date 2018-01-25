@@ -13,11 +13,21 @@
 		  stroke: black;
 		  fill: blue;
 		}
+
+		#outerCircle {
+			stroke: black;
+			fill: {{.OuterC}};
+		}
+
+		#innerCircle {
+			stroke: black;
+			fill: {{.InnerC}};
+		}
     ]]></style>
   <!-- </defs> -->
 <g>
-	<circle cx="256" cy="256" r="256" style="stroke: none; fill: #00ae68;" /> 
-	<circle cx="256" cy="256" r="206" style="stroke: none; fill: #95002b;" /> 
+	<circle id="#outerCircle" cx="256" cy="256" r="256"" /> 
+	<circle id="#innerCircle" cx="256" cy="256" r="206"" /> 
 	<path fill="#c9f600" d="M336.265,65.91C310.863,55.167,283.859,49.719,256,49.719c-27.859,0-54.863,5.448-80.265,16.191
 		c-24.554,10.385-46.614,25.261-65.567,44.215s-33.828,41.014-44.215,65.567c-10.743,25.401-16.191,52.406-16.191,80.265
 		s5.448,54.863,16.19,80.264c10.385,24.555,25.262,46.614,44.215,65.568c18.954,18.953,41.014,33.828,65.567,44.215
