@@ -22,6 +22,10 @@ func ICatImage(img image.Image) image.Image {
 	return nil
 }
 
+func CatRectangle(img image.Image, minX, minY, maxX, maxY int, wr io.Writer) error {
+	return CatRect(img, maxY-minY, maxX-minX, minY, minX, wr)
+}
+
 func CatRect(img image.Image, height, width, top, left int, wr io.Writer) error {
 	bud := img.Bounds()
 	// fmt.Printf("img y:%d, x:%d\n", bud.Dy(), bud.Dx())
