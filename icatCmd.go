@@ -116,6 +116,11 @@ func Excute() error {
 		if err != nil {
 			return err
 		}
+	} else {
+		img, err = png.Decode(r)
+		if err != nil {
+			return err
+		}
 	}
 
 	if viper.GetBool("gray") {
