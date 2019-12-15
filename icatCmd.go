@@ -14,7 +14,7 @@ import (
 	"github.com/harrydb/go/img/grayscale"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	// "github.com/toukii/goutils"
+	"github.com/toukii/ico"
 )
 
 var Command = &cobra.Command{
@@ -116,6 +116,11 @@ func Excute() error {
 		if err != nil {
 			return err
 		}
+	} else if viper.GetString("ext") == "ico" {
+		img, err = ico.Decode(r)
+		if err != nil {
+			return err
+		}
 	} else {
 		img, err = png.Decode(r)
 		if err != nil {
@@ -129,6 +134,10 @@ func Excute() error {
 	}
 	if output != "stdout" {
 		defer CatRect(img, viper.GetInt("height"), viper.GetInt("width"), viper.GetInt("top"), viper.GetInt("left"), NewEncodeWr(os.Stdout, nil))
+	}
+
+	if strings.HasSuffix(output, ".ico") {
+		return ico.Encode(w, img)
 	}
 
 	return CatRect(img, viper.GetInt("height"), viper.GetInt("width"), viper.GetInt("top"), viper.GetInt("left"), w)
