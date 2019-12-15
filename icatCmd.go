@@ -14,6 +14,7 @@ import (
 	"github.com/harrydb/go/img/grayscale"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/toukii/icns"
 	"github.com/toukii/ico"
 )
 
@@ -121,6 +122,11 @@ func Excute() error {
 		if err != nil {
 			return err
 		}
+	} else if viper.GetString("ext") == "icns" {
+		img, err = icns.Decode(r)
+		if err != nil {
+			return err
+		}
 	} else {
 		img, err = png.Decode(r)
 		if err != nil {
@@ -138,6 +144,8 @@ func Excute() error {
 
 	if strings.HasSuffix(output, ".ico") {
 		return ico.Encode(w, img)
+	} else if strings.HasSuffix(output, ".icns") {
+		return icns.Encode(w, img)
 	}
 
 	return CatRect(img, viper.GetInt("height"), viper.GetInt("width"), viper.GetInt("top"), viper.GetInt("left"), w)
